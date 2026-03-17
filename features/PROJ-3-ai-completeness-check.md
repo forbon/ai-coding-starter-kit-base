@@ -47,7 +47,81 @@
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### Approach
+AI processing runs entirely server-side in a Next.js API Route. The Claude API (`claude-sonnet-4-6`) analyzes documents using its vision capabilities for images and text extraction for PDFs. DWG files are parsed for structural metadata only. The result is a structured JSON object saved to the database. The browser polls the submission status until `completed` or `failed`.
+
+### Page Structure
+```
+app/(protected)/check/[id]/page.tsx  ← Processing state / polling UI
+app/api/check/route.ts               ← Server-side AI processing endpoint
+```
+
+### Component Structure
+```
+CheckPage (polls submission status every 3s)
++-- ProcessingCard
+|   +-- StepIndicator (Hochladen ✓ → Analysieren ⟳ → Abgeschlossen)
+|   +-- StatusMessage ("Dokumente werden analysiert…")
+|   +-- ProgressSpinner
+|   +-- TimeoutWarning (shown after 2.5 minutes)
+|   +-- RetryButton (shown on status: failed)
+```
+
+### Processing Flow (server-side API Route)
+1. Receive `submission_id` from trigger after upload
+2. Fetch all `uploaded_files` records for the submission
+3. For each file:
+   - **PDF**: Extract text content (using pdf-parse or similar)
+   - **Images (JPG/PNG)**: Pass directly to Claude vision API
+   - **DWG**: Extract metadata (layer names, title block info)
+   - **Unreadable**: Mark file as `parse_status: failed`
+4. Build a prompt with: extracted content + BauO NRW checklist (§ 70)
+5. Call Claude API with structured output request (JSON schema)
+6. Claude returns array of check items with status + description
+7. Save results to `check_results` table
+8. Update submission status to `completed`
+
+### BauO NRW Checklist (§ 70 Bauantragsunterlagen)
+The AI system prompt includes this fixed checklist as required context:
+
+| Category | Item |
+|----------|------|
+| Formulare | Bauantragsformular (NRW), Vollmacht (if applicable) |
+| Pläne | Amtlicher Lageplan, Grundrisse (all floors), Ansichten (all 4 sides), Schnitte |
+| Beschreibungen | Baubeschreibung, Betriebsbeschreibung (commercial) |
+| Nachweise | Standsicherheit, Brandschutz, Wärmeschutz, Abstandsflächen, GRZ/GFZ-Berechnung |
+| Entwurfsverfasser | Ausweiskopie, Bauvorlageberechtigung |
+
+### AI Output Schema (structured JSON)
+Claude is instructed to return:
+```
+{
+  items: [
+    {
+      category: string,
+      item_name: string,
+      status: "vollständig" | "unvollständig" | "fehlend",
+      description: string  // plain German, what is needed
+    }
+  ],
+  warnings: string[]  // e.g. "Dokument scheint kein NRW-Projekt zu sein"
+}
+```
+
+### Database Tables Used
+- `submissions`: status updated to `processing` → `completed` / `failed`
+- `check_results`: one row per checklist item (category, item_name, status, description)
+- `uploaded_files`: parse_status updated per file
+
+### Limits & Cost Controls
+- Token limit per check: ~100k input tokens (truncate older documents if needed, warn user)
+- Hard timeout: 3 minutes (API route timeout)
+- On timeout: update submission to `failed`, user shown retry option
+
+### Dependencies
+- `@anthropic-ai/sdk` — Claude API client (server-side only)
+- `pdf-parse` — Extract text from PDF files server-side
 
 ## QA Test Results
 _To be added by /qa_

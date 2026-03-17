@@ -41,7 +41,69 @@
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### Approach
+Results are fetched from the `check_results` table (populated by PROJ-3) and displayed as a read-only, filterable checklist. No AI re-invocation on this page — all data comes from the database. The page handles the case where the check is still processing via the same polling pattern used in PROJ-3.
+
+### Page Structure
+```
+app/(protected)/results/[id]/page.tsx
+```
+
+### Component Structure
+```
+ResultsPage
++-- ResultsHeader
+|   +-- SubmissionName
+|   +-- CheckDate
+|   +-- ActionButtons
+|       +-- PDFExportButton (→ PROJ-5)
+|       +-- BackToHistoryLink (→ PROJ-6)
++-- SummaryCard
+|   +-- StatBadge: vollständig (count, green, checkmark icon)
+|   +-- StatBadge: unvollständig (count, yellow, warning icon)
+|   +-- StatBadge: fehlend (count, red, X icon)
++-- FilterTabs
+|   +-- Tab: Alle
+|   +-- Tab: Nur Fehlend
+|   +-- Tab: Nur Unvollständig
++-- ChecklistTable
+|   +-- ChecklistRow (per check_results item, filtered by active tab)
+|       +-- CategoryLabel (grouped header)
+|       +-- ItemName
+|       +-- StatusBadge (icon + text + color — never color alone)
+|       +-- ActionDescription (plain German, shown for fehlend / unvollständig)
++-- ParseErrorSection (collapsible, files that couldn't be parsed)
++-- SuccessState (shown if all items are vollständig)
++-- ProcessingState (shown if submission.status = "processing", auto-refresh)
++-- ErrorState (shown if submission.status = "failed", retry CTA)
+```
+
+### Data Flow
+1. Load `submission` record by ID (verify user_id matches logged-in user → 403 if not)
+2. If status is `processing`: show processing state, poll every 3s
+3. If status is `completed`: load all `check_results` for this submission
+4. Group results by `category`, apply active filter tab
+5. Load `uploaded_files` with `parse_status: failed` for the parse errors section
+
+### Database Tables Used
+- `submissions`: id, name, created_at, status (to handle processing/failed state)
+- `check_results`: category, item_name, status, description (read-only display)
+- `uploaded_files`: file_name, parse_status, parse_error (for error section)
+
+### Access Control
+- Server component verifies `submission.user_id === session.user.id`
+- Returns 403 if mismatch (prevents URL sharing / unauthorized access)
+- RLS policies provide a second layer of enforcement at DB level
+
+### Existing UI Components Available
+All needed UI components are already installed:
+- `Badge` — StatusBadge with color variants
+- `Tabs` — FilterTabs
+- `Table` — ChecklistTable
+- `Card` — SummaryCard, ResultsHeader
+- `Alert` — ParseErrorSection, SuccessState, ErrorState
+- `Skeleton` — Loading states
 
 ## QA Test Results
 _To be added by /qa_

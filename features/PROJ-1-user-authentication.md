@@ -41,7 +41,44 @@
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### Approach
+Supabase Auth handles the full authentication lifecycle — email/password registration, JWT session management, email verification, and password reset — with zero custom auth server code needed.
+
+### Page Structure
+```
+app/(auth)/
+  login/page.tsx         ← Login form
+  register/page.tsx      ← Registration form
+  reset-password/page.tsx ← Request reset + confirm new password
+  verify-email/page.tsx  ← Landing page after email link click
+```
+
+### Component Structure
+```
+AuthPage
++-- AuthCard
+|   +-- EmailInput
+|   +-- PasswordInput (min 8 chars, enforced client + server)
+|   +-- SubmitButton
+|   +-- ErrorAlert (inline validation errors)
+|   +-- ForgotPasswordLink / RegisterLink / LoginLink
++-- VerifyEmailPrompt
+    +-- ResendVerificationButton
+```
+
+### Route Protection
+- Next.js middleware checks Supabase session on every request
+- Unauthenticated users are redirected to `/login?returnUrl=...`
+- Unverified users are redirected to `/verify-email`
+
+### Data Stored
+- Supabase Auth manages: email, hashed password (bcrypt), email verified flag, JWT tokens
+- No additional user profile table needed for MVP
+- DSGVO: minimal data — only email stored, no name or phone required
+
+### Dependencies
+- `@supabase/ssr` — Supabase SSR client for Next.js App Router middleware + server components
 
 ## QA Test Results
 _To be added by /qa_
