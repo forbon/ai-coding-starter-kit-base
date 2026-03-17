@@ -33,7 +33,7 @@ Read these files to understand where the project stands:
 4. **Check Codebase:** Quick scan of what's been built
    - `ls src/components/*.tsx 2>/dev/null` → Custom components
    - `ls src/app/api/ 2>/dev/null` → API routes
-   - `ls src/components/ui/` → Installed shadcn components
+   - `ls src/components/ui/` → Installed KERN UX components
 
 ### Step 2: Determine Next Action
 

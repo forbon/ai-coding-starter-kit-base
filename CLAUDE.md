@@ -5,7 +5,7 @@
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router), TypeScript
-- **Styling:** Tailwind CSS + shadcn/ui (copy-paste components)
+- **Styling:** Tailwind CSS + KERN UX (kern-ux.de Design-System)
 - **Backend:** Supabase (PostgreSQL + Auth + Storage) - optional
 - **Deployment:** Vercel
 - **Validation:** Zod + react-hook-form
@@ -17,7 +17,7 @@
 src/
   app/              Pages (Next.js App Router)
   components/
-    ui/             shadcn/ui components (NEVER recreate these)
+    ui/             KERN UX React wrapper components
   hooks/            Custom React hooks
   lib/              Utilities (supabase.ts, utils.ts)
 features/           Feature specifications (PROJ-X-name.md)
@@ -31,7 +31,7 @@ docs/
 
 1. `/requirements` - Create feature spec from idea
 2. `/architecture` - Design tech architecture (PM-friendly, no code)
-3. `/frontend` - Build UI components (shadcn/ui first!)
+3. `/frontend` - Build UI components (KERN UX components first!)
 4. `/backend` - Build APIs, database, RLS policies
 5. `/qa` - Test against acceptance criteria + security audit
 6. `/deploy` - Deploy to Vercel + production-ready checks
@@ -45,7 +45,7 @@ All features tracked in `features/INDEX.md`. Every skill reads it at start and u
 - **Feature IDs:** PROJ-1, PROJ-2, etc. (sequential)
 - **Commits:** `feat(PROJ-X): description`, `fix(PROJ-X): description`
 - **Single Responsibility:** One feature per spec file
-- **shadcn/ui first:** NEVER create custom versions of installed shadcn components
+- **KERN UX first:** NEVER create custom versions of installed KERN components
 - **Human-in-the-loop:** All workflows have user approval checkpoints
 
 ## Build & Test Commands

@@ -1,44 +1,76 @@
 "use client"
 
 import * as React from "react"
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
-import { Circle } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
-      {...props}
-      ref={ref}
-    />
-  )
-})
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+interface RadioGroupContextValue {
+  name: string
+  value?: string
+  onValueChange?: (value: string) => void
+}
 
-const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2.5 w-2.5 fill-current text-current" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
-  )
-})
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+const RadioGroupContext = React.createContext<RadioGroupContextValue>({ name: "" })
+
+export interface RadioGroupProps extends React.HTMLAttributes<HTMLFieldSetElement> {
+  name?: string
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+  orientation?: "horizontal" | "vertical"
+}
+
+const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>(
+  ({ className, name = "radio-group", value, defaultValue, onValueChange, orientation = "vertical", children, ...props }, ref) => {
+    const [internalValue, setInternalValue] = React.useState(defaultValue)
+    const currentValue = value ?? internalValue
+
+    const handleValueChange = (newValue: string) => {
+      setInternalValue(newValue)
+      onValueChange?.(newValue)
+    }
+
+    return (
+      <RadioGroupContext.Provider value={{ name, value: currentValue, onValueChange: handleValueChange }}>
+        <fieldset
+          ref={ref}
+          className={cn("kern-fieldset", className)}
+          {...props}
+        >
+          <div className={cn("kern-fieldset__body", orientation === "horizontal" && "kern-fieldset__body--horizontal")}>
+            {children}
+          </div>
+        </fieldset>
+      </RadioGroupContext.Provider>
+    )
+  }
+)
+RadioGroup.displayName = "RadioGroup"
+
+export interface RadioGroupItemProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+  value: string
+}
+
+const RadioGroupItem = React.forwardRef<HTMLInputElement, RadioGroupItemProps>(
+  ({ className, value, id, ...props }, ref) => {
+    const context = React.useContext(RadioGroupContext)
+
+    return (
+      <div className="kern-form-check">
+        <input
+          type="radio"
+          ref={ref}
+          id={id}
+          name={context.name}
+          value={value}
+          checked={context.value === value}
+          onChange={() => context.onValueChange?.(value)}
+          className={cn("kern-form-check__radio", className)}
+          {...props}
+        />
+      </div>
+    )
+  }
+)
+RadioGroupItem.displayName = "RadioGroupItem"
 
 export { RadioGroup, RadioGroupItem }

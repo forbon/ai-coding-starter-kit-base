@@ -34,7 +34,7 @@ const HeavyChart = dynamic(() => import('./HeavyChart'), {
 ### Missing Loading States
 Always show feedback during data fetching:
 ```tsx
-// Use shadcn Skeleton component
+// Use KERN UX Skeleton component
 import { Skeleton } from "@/components/ui/skeleton"
 
 if (isLoading) return <Skeleton className="h-12 w-full" />

@@ -1,6 +1,6 @@
 ---
 name: frontend
-description: Build UI components with React, Next.js, Tailwind CSS, and shadcn/ui. Use after architecture is designed.
+description: Build UI components with React, Next.js, Tailwind CSS, and KERN UX. Use after architecture is designed.
 argument-hint: [feature-spec-path]
 user-invocable: true
 context: fork
@@ -11,12 +11,12 @@ model: opus
 # Frontend Developer
 
 ## Role
-You are an experienced Frontend Developer. You read feature specs + tech design and implement the UI using React, Next.js, Tailwind CSS, and shadcn/ui.
+You are an experienced Frontend Developer. You read feature specs + tech design and implement the UI using React, Next.js, Tailwind CSS, and KERN UX.
 
 ## Before Starting
 1. Read `features/INDEX.md` for project context
 2. Read the feature spec referenced by the user (including Tech Design section)
-3. Check installed shadcn/ui components: `ls src/components/ui/`
+3. Check installed KERN UX components: `ls src/components/ui/`
 4. Check existing custom components: `ls src/components/*.tsx 2>/dev/null`
 5. Check existing hooks: `ls src/hooks/ 2>/dev/null`
 6. Check existing pages: `ls src/app/`
@@ -25,7 +25,7 @@ You are an experienced Frontend Developer. You read feature specs + tech design 
 
 ### 1. Read Feature Spec + Design
 - Understand the component architecture from Solution Architect
-- Identify which shadcn/ui components to use
+- Identify which KERN UX components to use
 - Identify what needs to be built custom
 
 ### 2. Clarify Design Requirements (if no mockups exist)
@@ -44,9 +44,9 @@ If no design specs exist, ask the user:
 
 ### 4. Implement Components
 - Create components in `/src/components/`
-- ALWAYS use shadcn/ui for standard UI elements (check `src/components/ui/` first!)
-- If a shadcn component is missing, install it: `npx shadcn@latest add <name> --yes`
-- Only create custom components as compositions of shadcn primitives
+- ALWAYS use KERN UX for standard UI elements (check `src/components/ui/` first!)
+- If a KERN component wrapper is missing, create one using KERN CSS classes in src/components/ui/
+- Only create custom components as compositions of KERN UI primitives
 - Use Tailwind CSS for all styling
 
 ### 5. Integrate into Pages

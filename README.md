@@ -76,7 +76,7 @@ To add more features later, run `/requirements` again - it detects the existing 
 |-------|---------|-------------|
 | Requirements Engineer | `/requirements` | Creates feature specs with user stories, acceptance criteria, edge cases |
 | Solution Architect | `/architecture` | Designs PM-friendly tech architecture (no code, only high-level design) |
-| Frontend Developer | `/frontend` | Builds UI with React, Tailwind CSS, and shadcn/ui |
+| Frontend Developer | `/frontend` | Builds UI with React, Tailwind CSS, and KERN UX |
 | Backend Developer | `/backend` | Builds APIs, database schemas, RLS policies with Supabase |
 | QA Engineer | `/qa` | Tests features against acceptance criteria + security audit |
 | DevOps | `/deploy` | Deploys to Vercel with production-ready checks |
@@ -122,7 +122,7 @@ Every skill reads this file at start and updates it when done, preventing duplic
 | **Framework** | Next.js 16 | React + Server Components + App Router |
 | **Language** | TypeScript | Type safety |
 | **Styling** | Tailwind CSS | Utility-first CSS |
-| **UI Library** | shadcn/ui | Copy-paste, customizable components |
+| **UI Library** | KERN UX (@kern-ux/native) | kern-ux.de Design-System |
 | **Backend** | Supabase (optional) | PostgreSQL + Auth + Storage + Realtime |
 | **Deployment** | Vercel | Zero-config Next.js hosting |
 | **Validation** | Zod | Runtime type validation |
@@ -139,7 +139,7 @@ ai-coding-starter-kit/
 |   +-- settings.local.json          <-- Personal overrides (gitignored)
 |   +-- rules/                       <-- Auto-applied coding rules
 |   |   +-- general.md                   Git workflow, feature tracking
-|   |   +-- frontend.md                  shadcn/ui, component standards
+|   |   +-- frontend.md                  KERN UX, component standards
 |   |   +-- backend.md                   RLS, validation, queries
 |   |   +-- security.md                  Secrets, headers, auth
 |   +-- skills/                      <-- Invocable workflows (/command)
@@ -168,7 +168,7 @@ ai-coding-starter-kit/
 +-- src/
 |   +-- app/                         <-- Pages (Next.js App Router)
 |   +-- components/
-|   |   +-- ui/                      <-- shadcn/ui components (35+ installed)
+|   |   +-- ui/                      <-- KERN UX React wrapper components
 |   +-- hooks/                       <-- Custom React hooks
 |   +-- lib/                         <-- Utilities
 +-- public/                          <-- Static files
@@ -193,12 +193,9 @@ Run `/requirements` with your feature idea. The skill will:
 - Update `features/INDEX.md` with the new feature
 - Suggest running `/architecture` as the next step
 
-### 3. Add shadcn/ui Components (as needed)
+### 3. Add KERN UX Components (as needed)
 
-35+ components are pre-installed. Add more as needed:
-```bash
-npx shadcn@latest add [component-name]
-```
+KERN UX React wrapper components live in `src/components/ui/`. To add a new wrapper, create it in `src/components/ui/` using KERN CSS classes from @kern-ux/native. Reference: https://www.kern-ux.de/komponenten
 
 ### 4. Production Setup (first deployment)
 

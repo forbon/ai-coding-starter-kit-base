@@ -1,31 +1,88 @@
 "use client"
 
 import * as React from "react"
-import * as PopoverPrimitive from "@radix-ui/react-popover"
-
 import { cn } from "@/lib/utils"
 
-const Popover = PopoverPrimitive.Root
+interface PopoverContextValue {
+  open: boolean
+  setOpen: (open: boolean) => void
+  triggerRef: React.RefObject<HTMLButtonElement | null>
+}
 
-const PopoverTrigger = PopoverPrimitive.Trigger
+const PopoverContext = React.createContext<PopoverContextValue | null>(null)
 
-const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content
-      ref={ref}
-      align={align}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-popover-content-transform-origin]",
-        className
-      )}
+function Popover({ open: controlledOpen, onOpenChange, children }: { open?: boolean; onOpenChange?: (open: boolean) => void; children: React.ReactNode }) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const open = controlledOpen ?? internalOpen
+
+  const setOpen = React.useCallback((value: boolean) => {
+    setInternalOpen(value)
+    onOpenChange?.(value)
+  }, [onOpenChange])
+
+  return (
+    <PopoverContext.Provider value={{ open, setOpen, triggerRef }}>
+      <div className="relative inline-block">{children}</div>
+    </PopoverContext.Provider>
+  )
+}
+
+function PopoverTrigger({ children, className, asChild, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }) {
+  const { open, setOpen, triggerRef } = React.useContext(PopoverContext)!
+  return (
+    <button
+      type="button"
+      ref={triggerRef}
+      className={className}
+      onClick={() => setOpen(!open)}
+      aria-expanded={open}
       {...props}
-    />
-  </PopoverPrimitive.Portal>
-))
-PopoverContent.displayName = PopoverPrimitive.Content.displayName
+    >
+      {children}
+    </button>
+  )
+}
+
+const PopoverContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { align?: "start" | "center" | "end"; sideOffset?: number }>(
+  ({ className, align = "center", children, ...props }, ref) => {
+    const { open, setOpen } = React.useContext(PopoverContext)!
+    const contentRef = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+      if (!open) return
+      const handleClickOutside = (e: MouseEvent) => {
+        if (contentRef.current && !contentRef.current.contains(e.target as Node)) {
+          setOpen(false)
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [open, setOpen])
+
+    if (!open) return null
+
+    const alignClass = {
+      start: "left-0",
+      center: "left-1/2 -translate-x-1/2",
+      end: "right-0",
+    }[align]
+
+    return (
+      <div
+        ref={(node) => {
+          (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+          if (typeof ref === "function") ref(node)
+          else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node
+        }}
+        className={cn("absolute z-50 mt-2 min-w-[8rem] rounded border bg-white p-4 shadow-md", alignClass, className)}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+PopoverContent.displayName = "PopoverContent"
 
 export { Popover, PopoverTrigger, PopoverContent }

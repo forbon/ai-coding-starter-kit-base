@@ -14,7 +14,7 @@
       "Bash(git ls-files:*)",
       "Bash(lsof:*)",
       "Bash(kill:*)",
-      "Bash(npx shadcn@latest add:*)",
+
       "Bash(ls:*)",
       "Bash(cat:*)"
     ]

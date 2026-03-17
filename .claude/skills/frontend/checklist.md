@@ -2,10 +2,10 @@
 
 Before marking frontend as complete:
 
-## shadcn/ui
-- [ ] Checked shadcn/ui for EVERY UI component needed
-- [ ] No custom duplicates of shadcn components created
-- [ ] Missing shadcn components installed via `npx shadcn@latest add`
+## KERN UX
+- [ ] Checked KERN UX wrappers for EVERY UI component needed
+- [ ] No custom duplicates of KERN components created
+- [ ] Missing KERN component wrappers created in src/components/ui/ using KERN CSS classes
 
 ## Existing Code
 - [ ] Checked existing project components via `git ls-files src/components/`
