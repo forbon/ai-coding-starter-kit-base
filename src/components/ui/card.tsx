@@ -1,10 +1,27 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
-  ({ className, ...props }, ref) => (
-    <article ref={ref as React.Ref<HTMLElement>} className={cn("kern-card", className)} {...props} />
-  )
+export interface CardProps extends React.HTMLAttributes<HTMLElement> {
+  variant?: "default" | "hug" | "small" | "large"
+}
+
+const Card = React.forwardRef<HTMLElement, CardProps>(
+  ({ className, variant = "hug", children, ...props }, ref) => {
+    const variantClass = {
+      default: "",
+      hug: "kern-card--hug",
+      small: "kern-card--small",
+      large: "kern-card--large",
+    }[variant]
+
+    return (
+      <article ref={ref as React.Ref<HTMLElement>} className={cn("kern-card", variantClass, className)} {...props}>
+        <div className="kern-card__container">
+          {children}
+        </div>
+      </article>
+    )
+  }
 )
 Card.displayName = "Card"
 

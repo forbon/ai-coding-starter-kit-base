@@ -1,8 +1,34 @@
 # PROJ-1: User Authentication
 
-## Status: Planned
+## Status: In Review
 **Created:** 2026-03-17
 **Last Updated:** 2026-03-17
+
+## Implementation Notes (Frontend)
+- Auth layout with centered card design at `app/(auth)/layout.tsx`
+- Login page at `/login` with email/password form, inline validation, forgot-password link, unverified-email warning
+- Register page at `/register` with email/password/confirm form, 8-char minimum, success state showing email confirmation prompt
+- Reset password page at `/reset-password` with request mode, email-sent confirmation, and new-password confirm mode (detects recovery link via URL hash)
+- Verify email page at `/verify-email` with verified/error detection and resend-verification-email form
+- All forms use Zod validation schemas (`src/lib/auth-schemas.ts`) with react-hook-form
+- All edge cases from spec implemented: duplicate email, expired reset link, unverified login, resend verification
+- KERN UX components used throughout: Button, Input, Label, Card, Alert, Form
+- Supabase browser client set up at `src/lib/supabase.ts` (graceful null when env vars missing)
+
+## Implementation Notes (Backend)
+- Installed `@supabase/ssr` for proper SSR cookie-based session handling
+- `src/lib/supabase.ts` updated to use `createBrowserClient` from `@supabase/ssr`
+- `src/lib/supabase-server.ts` created with `createServerClient` using Next.js cookies() for server components and route handlers
+- `src/lib/supabase-middleware.ts` created with session refresh logic and route protection rules
+- `middleware.ts` at project root protects all routes; unauthenticated users redirected to `/login?returnUrl=...`; unverified users redirected to `/verify-email`; authenticated users on auth pages redirected to `/dashboard`
+- `src/app/auth/callback/route.ts` handles Supabase code exchange for email verification and password reset magic links
+- `src/app/api/auth/logout/route.ts` (POST) signs out user via Supabase and redirects to `/login`
+- `src/components/app-header.tsx` displays "BauCheck NRW" branding + user email + logout button (KERN UX Button)
+- `src/app/(protected)/layout.tsx` wraps protected pages with AppHeader and fetches user session server-side
+- `src/app/(protected)/dashboard/page.tsx` placeholder with welcome message and CTA
+- `src/app/page.tsx` redirects to `/dashboard` if authenticated, otherwise to `/login`
+- `.env.local.example` already contains required Supabase env vars
+- Build passes cleanly (`npm run build` successful)
 
 ## Dependencies
 - None
